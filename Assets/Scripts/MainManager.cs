@@ -3,28 +3,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
+using UnityEditor;
 
 public class MainManager : MonoBehaviour
 {
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
+    public string playerName;
 
+    public Text HighScoreText;
     public Text ScoreText;
     public GameObject GameOverText;
-    
+        
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
+        playerName = InfoManager.Instance.currentName;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
+        if (InfoManager.Instance.highScore != 0)
+        {
+            HighScoreText.text = "Best Score: " + InfoManager.Instance.highScoreName + " with " + InfoManager.Instance.highScore;
+        }
+        else
+        {
+            HighScoreText.text = "Best Score: Nothing Yet!";
+        }
         int[] pointCountArray = new [] {1,1,2,2,5,5};
         for (int i = 0; i < LineCount; ++i)
         {
@@ -59,6 +71,10 @@ public class MainManager : MonoBehaviour
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                BackToMain();
+            }
         }
     }
 
@@ -72,5 +88,16 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (m_Points > InfoManager.Instance.highScore)
+        {
+            InfoManager.Instance.highScore = m_Points;
+            InfoManager.Instance.highScoreName = playerName;
+            
+        }
+    }
+
+    public void BackToMain()
+    {
+        SceneManager.LoadScene(0);
     }
 }
